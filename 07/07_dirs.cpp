@@ -22,6 +22,9 @@ public:
   }
   virtual ~Node() = default;
   virtual int size() const = 0;
+  shared_ptr<Node> get_parent() const {
+    return m_parent;
+  }
 };
 
 class File;
@@ -57,6 +60,9 @@ public:
     cerr << "DIR: " << this->get_name()  << " has size " << dirsize << endl;
     return dirsize;
   }
+  shared_ptr<Node> get_parent() const {
+    return Node::get_parent();
+  }
 };
 
 class File : public Node {
@@ -83,23 +89,20 @@ private:
   shared_ptr<Directory> m_root;
 public:
   FS(): m_root(make_shared<Directory>(Directory(NULL, "/"))) {
-    cerr << "In FS()" << endl;
   }
   void read_input() {
     string line;
     shared_ptr<Directory> cur = m_root;
     while(getline(cin, line)) {
-      cerr << "LINE " << line << endl;
       if(line[0] == '$') {
 	// command
 	string cmd = line.substr(2);
-	cerr << "CMD: " << cmd << endl;
 	if(cmd.substr(0,2) == "cd") {
 	  string dir = cmd.substr(3);
-	  cerr << "CD to dir: " << dir << endl;
 	  if(dir == "/") {
-	    cerr << "Going to root" << endl;
 	    cur = m_root;
+	  } else if(dir == "..") {
+	    cur = dynamic_pointer_cast<Directory> (cur->get_parent());
 	  } else {
 	    // Go to other dir than root
 	    cur = cur->add_dir(dir, cur);
@@ -108,8 +111,9 @@ public:
 	  // Do nothing???
 	}
       } else if(line.substr(0, 3) == "dir") {
-	string dir = line.substr(3);
-	cerr << "DIR:" << dir << endl;
+	string dir = line.substr(4);
+	cur->add_dir(dir, cur);
+	cerr << "DIR added:" << dir << endl;
       } else {
 	cerr << "Is this a file??? " << line << endl;
 	stringstream ss(line);
