@@ -29,6 +29,8 @@ public:
 
 class File;
 
+static int global_dirsum = 0;
+
 class Directory : public Node {
 private:
   map<string, shared_ptr<Node> > m_directories;
@@ -58,6 +60,7 @@ public:
       dirsize += d.second->size();
     }
     cerr << "DIR: " << this->get_name()  << " has size " << dirsize << endl;
+    global_dirsum += (dirsize <= 100000) ? dirsize : 0;
     return dirsize;
   }
   shared_ptr<Node> get_parent() const {
@@ -134,5 +137,6 @@ int main(int argc, char * argv[]) {
   unique_ptr<FS> fs = make_unique<FS> ();
   fs->read_input();
   int root_size = fs->root_size();
-  cerr << "Root has size: " << root_size  << endl;  
+  cerr << "Root has size: " << root_size  << endl;
+  cout << "Global dirsum 100k: " << global_dirsum << endl;
 }
