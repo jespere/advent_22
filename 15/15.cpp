@@ -73,12 +73,14 @@ int Network::solve1(const int& yline) {
   do {
     excluded_merged.clear();
     for(vector<pair<int,int> >::iterator it = excluded.begin(); it != excluded.end(); it++) {
-      if(it + 1 != excluded.end() && it->second >= (it+1)->first) {
+      if(it->second < 0 || it->first > 4000000) {
+	// Skip
+      } else if(it + 1 != excluded.end() && it->second >= (it+1)->first) {
 	// Merge
 	excluded_merged.push_back(make_pair( it->first, max(it->second, (it+1)->second)) );
 	++it;
       } else {
-	excluded_merged.push_back(*it);
+	excluded_merged.push_back(make_pair(max(0,it->first), min(it->second, 4000000)));
       }
     }
 //    if (debug) fprintf(stderr, "excluded.size(): %lu excluded_merged.size(): %lu \n",
@@ -89,12 +91,12 @@ int Network::solve1(const int& yline) {
     excluded = vector<pair<int,int> > (excluded_merged.begin(), excluded_merged.end());
   } while(old_size != excluded_merged.size());
 
-//  if(debug) {
-//    for(const auto &p : excluded_merged) {
-//      fprintf(stderr, "s: %d e: %d, ", p.first, p.second);
-//    }
-//    fprintf(stderr, "\n");
-//  }
+  if(debug) {
+    for(const auto &p : excluded_merged) {
+      fprintf(stderr, "s: %d e: %d, ", p.first, p.second);
+    }
+    fprintf(stderr, "\n");
+  }
 
   int sum = 0;
   for(const auto &p : excluded_merged) {
@@ -107,8 +109,16 @@ int Network::solve1(const int& yline) {
 int main(int argc, char* argv[]) {
   Network n;
   n.read();
+  int sum = n.solve1(3249595);
+  printf("Sum: %d\n", sum);
   if(argc >= 2) {
-    int sum = n.solve1(atoi(argv[1]));
-    printf("Sum: %d\n", sum);
+    //3249595
+    //r(int y = 0; y <= 4000000; ++y) {
+    //int sum = n.solve1(y);
+    //if (sum != 4000000) {
+    //	printf("y: %d Sum: %d\n", y, sum);
+    //	
+    //}
+    //
   }
 }
